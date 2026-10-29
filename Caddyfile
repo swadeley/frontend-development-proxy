@@ -39,6 +39,10 @@
 				header_up Host {http.reverse_proxy.upstream.hostport}
 				header_up Accept-Encoding "gzip;q=0,deflate,sdch"
 				header_up -Origin
+				# Keep browser on *.foo.redhat.com:PORT (same as IOP). Without this,
+				# upstream 302s to console.stage cause CORS failures for XHR
+				# (e.g. /apps/chrome/operator-generated/fed-modules.json).
+				header_down Location {http.reverse_proxy.upstream.host} {http.request.hostport}
 			}
 		}
 	}
@@ -61,6 +65,9 @@
 				header_up Host {http.reverse_proxy.upstream.hostport}
 				header_up Accept-Encoding "gzip;q=0,deflate,sdch"
 				header_up -Origin
+				# Same Location rewrite as IOP /api block above — required for stage
+				# chrome assets that 302 to console.stage.redhat.com.
+				header_down Location {http.reverse_proxy.upstream.host} {http.request.hostport}
 			}
 		}
 	}
